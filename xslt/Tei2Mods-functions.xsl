@@ -47,7 +47,45 @@
             <xsl:with-param name="p_url-file" select="replace(replace($vFileDesc/tei:publicationStmt/tei:idno[@type='url'],'github.com', 'rawgit.com'),'blob/','')"/>
 <!--            <xsl:with-param name="p_url-self" select="concat($vgFileUrl, '#', @xml:id)"/>-->
             <xsl:with-param name="p_url-licence" select="$vFileDesc/tei:publicationStmt/tei:availability/tei:licence/@target"/>
-            <xsl:with-param name="p_volume" select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n"/>
+            <xsl:with-param name="p_issue">
+                <xsl:choose>
+                    <!-- check for correct encoding of issue information -->
+                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from = $vBiblStructSource//tei:biblScope[@unit = 'issue']/@to">
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from"/>
+                    </xsl:when>
+                    <!-- check for ranges -->
+                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from != $vBiblStructSource//tei:biblScope[@unit = 'issue']/@to">
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from"/>
+                        <!-- probably an en-dash is the better option here -->
+                        <xsl:text>/</xsl:text>
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@to"/>
+                    </xsl:when>
+                    <!-- fallback: erroneous encoding of issue information with @n -->
+                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n">
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:with-param>
+            <xsl:with-param name="p_volume">
+                <xsl:choose>
+                    <!-- check for correct encoding of volume information -->
+                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from = $vBiblStructSource//tei:biblScope[@unit = 'volume']/@to">
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from"/>
+                    </xsl:when>
+                    <!-- check for ranges -->
+                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from != $vBiblStructSource//tei:biblScope[@unit = 'volume']/@to">
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from"/>
+                        <!-- probably an en-dash is the better option here -->
+                        <xsl:text>/</xsl:text>
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@to"/>
+                    </xsl:when>
+                    <!-- fallback: erroneous encoding of volume information with @n -->
+                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n">
+                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:with-param>
+            <!--<xsl:with-param name="p_volume" select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n"/>
             <xsl:with-param name="p_issue">
                 <xsl:choose>
                     <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n">
@@ -59,7 +97,7 @@
                         <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@to"/>
                     </xsl:when>
                 </xsl:choose>
-            </xsl:with-param>
+            </xsl:with-param>-->
             <xsl:with-param name="p_date-publication">
                 <xsl:variable name="v_date" select="$vBiblStructSource/tei:monogr/tei:imprint/tei:date[1]"/>
                     <xsl:choose>
