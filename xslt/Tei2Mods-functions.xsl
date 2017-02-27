@@ -88,19 +88,6 @@
                     </xsl:when>
                 </xsl:choose>
             </xsl:with-param>
-            <!--<xsl:with-param name="p_volume" select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n"/>
-            <xsl:with-param name="p_issue">
-                <xsl:choose>
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n"/>
-                    </xsl:when>
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from"/>
-                        <xsl:text>/</xsl:text>
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@to"/>
-                    </xsl:when>
-                </xsl:choose>
-            </xsl:with-param>-->
             <xsl:with-param name="p_date-publication">
                 <xsl:variable name="v_date" select="$vBiblStructSource/tei:monogr/tei:imprint/tei:date[1]"/>
                     <xsl:choose>
@@ -132,7 +119,7 @@
                 </tei:pubPlace>
             </xsl:with-param>
             <xsl:with-param name="p_author" select="tei:byline/descendant::tei:persName"/>
-            <xsl:with-param name="p_editor" select="$vBiblStructSource/tei:monogr/tei:editor/tei:persName[@xml:lang = $vLang]"/>
+            <xsl:with-param name="p_editor" select="$vBiblStructSource/tei:monogr/tei:editor[tei:persName]"/>
             <xsl:with-param name="p_pages">
                 <tei:biblScope unit="pages">
                     <xsl:attribute name="from" select="preceding::tei:pb[@ed = 'print'][1]/@n"/>
@@ -295,9 +282,9 @@
             <!-- pull in information on editor -->
             <!-- for each editor -->
             <xsl:if test="$p_editor/descendant-or-self::tei:persName">
-                <xsl:for-each select="$p_editor/descendant-or-self::tei:persName">
+                <xsl:for-each select="$p_editor/descendant-or-self::tei:persName[@xml:lang = $p_lang]">
                     <name type="personal" xml:lang="{$p_lang}">
-                        <xsl:apply-templates select="." mode="m_authority"/>
+                        <xsl:apply-templates select="ancestor::tei:editor" mode="m_authority"/>
                         <xsl:choose>
                             <xsl:when test="tei:surname">
                                 <xsl:apply-templates select="tei:surname" mode="m_tei2mods">
@@ -431,7 +418,7 @@
 
     <!-- plain text output: beware that heavily marked up nodes will have most whitespace omitted -->
     <xsl:template match="text()" mode="m_plain-text">
-        <xsl:value-of select="replace(.,'(\w)[\s|\n]+','$1 ')"/>
+        <xsl:value-of select="normalize-space(replace(.,'(\w)[\s|\n]+','$1 '))"/>
 <!--        <xsl:text> </xsl:text>-->
 <!--        <xsl:value-of select="normalize-space(.)"/>-->
         <!--<xsl:text> </xsl:text>-->
@@ -484,12 +471,13 @@
         </placeTerm>
     </xsl:template>
     
-    <xsl:template match="tei:persName" mode="m_authority">
+    <xsl:template match="tei:persName | tei:orgName | tei:editor | tei:author" mode="m_authority">
             <xsl:if test="@ref!=''''">
                 <xsl:choose>
-                    <xsl:when test="matches(@ref, 'viaf\:\d+')">
+                    <xsl:when test="matches(@ref, 'viaf:\d+')">
                         <xsl:attribute name="authority" select="'viaf'"/>
-                        <xsl:attribute name="valueURI" select="replace(@ref,'(viaf)\:(\d+)','$2')"/>
+                        <!-- it is arguably better to directly dereference VIAF IDs -->
+                        <xsl:attribute name="valueURI" select="replace(@ref,'(viaf):(\d+)','https://viaf.org/viaf/$2')"/>
                     </xsl:when>
                 </xsl:choose>
             </xsl:if>
