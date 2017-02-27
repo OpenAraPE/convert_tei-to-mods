@@ -36,12 +36,15 @@
         <xsl:call-template name="t_bibl-mods">
             <xsl:with-param name="p_lang" select="$pLang"/>
             <xsl:with-param name="p_title-publication" select="$vBiblStructSource/tei:monogr/tei:title[@level = 'j'][@xml:lang = $vLang][not(@type = 'sub')]"/>
+            <!-- $p_title-article expects a <tei:title> node -->
             <xsl:with-param name="p_title-article">
-                <xsl:if test="@type = 'article' and ancestor::tei:div[@type = 'section']">
-                    <xsl:apply-templates select="ancestor::tei:div[@type = 'section']/tei:head" mode="m_plain-text"/>
-                    <xsl:text>: </xsl:text>
-                </xsl:if>
-                <xsl:apply-templates select="tei:head" mode="m_plain-text"/>
+                <tei:title level="a" xml:lang="{tei:head/@xml:lang}">
+                    <xsl:if test="@type = 'article' and ancestor::tei:div[@type = 'section']">
+                        <xsl:apply-templates select="ancestor::tei:div[@type = 'section']/tei:head" mode="m_plain-text"/>
+                        <xsl:text>: </xsl:text>
+                    </xsl:if>
+                    <xsl:apply-templates select="tei:head" mode="m_plain-text"/>
+                </tei:title>
             </xsl:with-param>
             <xsl:with-param name="p_xml-id" select="@xml:id"/>
             <xsl:with-param name="p_url-file" select="replace(replace($vFileDesc/tei:publicationStmt/tei:idno[@type='url'],'github.com', 'rawgit.com'),'blob/','')"/>
@@ -294,6 +297,7 @@
             <xsl:if test="$p_editor/descendant-or-self::tei:persName">
                 <xsl:for-each select="$p_editor/descendant-or-self::tei:persName">
                     <name type="personal" xml:lang="{$p_lang}">
+                        <xsl:apply-templates select="." mode="m_authority"/>
                         <xsl:choose>
                             <xsl:when test="tei:surname">
                                 <xsl:apply-templates select="tei:surname" mode="m_tei2mods">
@@ -366,6 +370,8 @@
             <xsl:if test="$p_author/descendant-or-self::tei:persName">
                 <xsl:for-each select="$p_author/descendant-or-self::tei:persName">
                     <name type="personal" xml:lang="{$p_lang}">
+                        <!-- add references to authority files -->
+                        <xsl:apply-templates select="." mode="m_authority"/>
                         <xsl:choose>
                             <xsl:when test="tei:surname">
                                 <xsl:apply-templates select="tei:surname" mode="m_tei2mods">
@@ -457,12 +463,7 @@
             <xsl:value-of select="."/>
         </namePart>
     </xsl:template>-->
-    <!--  -->
-    <xsl:template match="tei:idno" mode="m_tei2mods">
-        <identifier type="{@type}">
-            <xsl:apply-templates select="." mode="m_plain-text"/>
-        </identifier>
-    </xsl:template>
+    
     
     <xsl:template match="tei:publisher/tei:orgName | tei:publisher/tei:persName" mode="m_tei2mods">
         <!-- tei:publisher can have a variety of child nodes, which are completely ignored by this template -->
@@ -481,6 +482,24 @@
         <placeTerm type="text" xml:lang="{@xml:lang}">
             <xsl:apply-templates select="." mode="m_plain-text"/>
         </placeTerm>
+    </xsl:template>
+    
+    <xsl:template match="tei:persName" mode="m_authority">
+            <xsl:if test="@ref!=''''">
+                <xsl:choose>
+                    <xsl:when test="matches(@ref, 'viaf\:\d+')">
+                        <xsl:attribute name="authority" select="'viaf'"/>
+                        <xsl:attribute name="valueURI" select="replace(@ref,'(viaf)\:(\d+)','$2')"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:if>
+    </xsl:template>
+    
+    <!-- IDs -->
+    <xsl:template match="tei:idno" mode="m_tei2mods">
+        <identifier type="{@type}">
+            <xsl:apply-templates select="." mode="m_plain-text"/>
+        </identifier>
     </xsl:template>
     
     <!-- source languages -->
