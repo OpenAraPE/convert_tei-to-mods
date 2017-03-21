@@ -11,6 +11,8 @@
     
     <!-- this parameter is currently not used -->
     <xsl:param name="pg_head-section" select="'مخطوطات ومطبوعات'"/>
+    <!--  -->
+    <xsl:param name="p_url-boilerplate" select="'../xslt-boilerplate/modsbp_parameters.xsl'"/>
     
     <!-- it doesn't matter one applies the transformation to bibl or biblStruct -->
     <xsl:template match="tei:bibl | tei:biblStruct">
@@ -80,7 +82,7 @@
 
     <xsl:template match="/">
         <xsl:result-document href="../metadata/{$vgFileId}-bibl.MODS.xml">
-            <xsl:value-of select="'&lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;../boilerplate/mods-bp.xsl&quot;?&gt;'" disable-output-escaping="yes"/>
+            <xsl:value-of select="concat('&lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;',$p_url-boilerplate,'&quot;?&gt;')" disable-output-escaping="yes"/>
             <modsCollection xsi:schemaLocation="http://www.loc.gov/mods/v3 {$vgSchemaLocation}">
                 <!--<xsl:apply-templates select=".//tei:body//tei:bibl[contains(ancestor::tei:div/tei:head/text(),$pg_head-section)]"/>-->
                 <xsl:apply-templates select=".//tei:body//tei:bibl[descendant::tei:title] | .//tei:body//tei:biblStruct"/>
