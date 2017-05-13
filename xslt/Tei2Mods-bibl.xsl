@@ -68,8 +68,47 @@
             <!-- this needs to be changed to reflect the changes in the called template -->
             <xsl:with-param name="p_date-publication" select="descendant::tei:date[1]"/>
             <xsl:with-param name="p_date-accessed" select="ancestor::tei:TEI/tei:teiHeader/tei:revisionDesc/tei:change[1]/@when"/>
-            <xsl:with-param name="p_volume" select="descendant::tei:biblScope[@unit = 'volume']/@n"/>
-            <xsl:with-param name="p_issue" select="descendant::tei:biblScope[@unit = 'issue']/@n"/>
+            <!-- this needs to be adapted to @from and @to -->
+            <xsl:with-param name="p_issue">
+                <xsl:choose>
+                    <!-- check for correct encoding of issue information -->
+                    <xsl:when test="descendant::tei:biblScope[@unit = 'issue']/@from = descendant::tei:biblScope[@unit = 'issue']/@to">
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'issue']/@from"/>
+                    </xsl:when>
+                    <!-- check for ranges -->
+                    <xsl:when test="descendant::tei:biblScope[@unit = 'issue']/@from != descendant::tei:biblScope[@unit = 'issue']/@to">
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'issue']/@from"/>
+                        <!-- probably an en-dash is the better option here -->
+                        <xsl:text>/</xsl:text>
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'issue']/@to"/>
+                    </xsl:when>
+                    <!-- fallback: erroneous encoding of issue information with @n -->
+                    <xsl:when test="descendant::tei:biblScope[@unit = 'issue']/@n">
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'issue']/@n"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:with-param>
+            <xsl:with-param name="p_volume">
+                <xsl:choose>
+                    <!-- check for correct encoding of volume information -->
+                    <xsl:when test="descendant::tei:biblScope[@unit = 'volume']/@from = descendant::tei:biblScope[@unit = 'volume']/@to">
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'volume']/@from"/>
+                    </xsl:when>
+                    <!-- check for ranges -->
+                    <xsl:when test="descendant::tei:biblScope[@unit = 'volume']/@from != descendant::tei:biblScope[@unit = 'volume']/@to">
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'volume']/@from"/>
+                        <!-- probably an en-dash is the better option here -->
+                        <xsl:text>/</xsl:text>
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'volume']/@to"/>
+                    </xsl:when>
+                    <!-- fallback: erroneous encoding of volume information with @n -->
+                    <xsl:when test="descendant::tei:biblScope[@unit = 'volume']/@n">
+                        <xsl:value-of select="descendant::tei:biblScope[@unit = 'volume']/@n"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:with-param>
+           <!-- <xsl:with-param name="p_volume" select="descendant::tei:biblScope[@unit = 'volume']/@n"/>
+            <xsl:with-param name="p_issue" select="descendant::tei:biblScope[@unit = 'issue']/@n"/>-->
             <xsl:with-param name="p_pages" select="descendant::tei:biblScope[@unit = 'page']"/>
 
             <!-- empty params that are node sets need to be set -->
