@@ -16,7 +16,7 @@
         select="concat('https://rawgit.com/tillgrallert/digital-muqtabas/master/xml/', tokenize(base-uri(), '/')[last()])"/>-->
 
     <xsl:template match="/">
-        <xsl:result-document href="../metadata/{$vgFileId}.MODS.xml">
+        <xsl:result-document href="../metadata/issues/{$vgFileId}.MODS.xml">
             <modsCollection xsi:schemaLocation="http://www.loc.gov/mods/v3 {$vgSchemaLocation}">
                 <!-- construct MODS -->
                 <xsl:apply-templates select="descendant::tei:text/tei:body/descendant::tei:div"/>
