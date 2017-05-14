@@ -46,20 +46,14 @@
                         <xsl:copy-of select="descendant::tei:title[@level = 'm']"/>
                     </xsl:when>
                     <xsl:when test="$v_type = 'j' or $v_type = 'a'">
-                       <!-- <xsl:for-each select="descendant::tei:title[@level = 'j'][not(@type='sub')]">
-                            <tei:title xml:lang="{@xml:lang}">
-                                <xsl:value-of select="."/>
-                            </tei:title>
-                        </xsl:for-each>-->
-                         
-                        <tei:title xml:lang="{descendant::tei:title[@level = 'j'][not(@type='sub')]/@xml:lang}">
+                        <!-- conceive a way to deal with titles in multiple languages -->
+                        <tei:title xml:lang="{descendant::tei:title[@level = 'j'][not(@type='sub')]/@xml:lang}" level="{$v_type}">
                             <xsl:value-of select="descendant::tei:title[@level = 'j'][not(@type='sub')]"/>
                             <xsl:if test="descendant::tei:title[@level = 'j'][@type='sub']">
                                 <xsl:text>: </xsl:text>
                                 <xsl:value-of select="descendant::tei:title[@level = 'j'][@type='sub']"/>
                             </xsl:if>
-                        </tei:title>
-                        
+                        </tei:title>  
                     </xsl:when>
                 </xsl:choose>
             </xsl:with-param>
@@ -114,7 +108,13 @@
             <!-- empty params that are node sets need to be set -->
             <xsl:with-param name="p_idno" select="descendant::tei:idno"/>
             <xsl:with-param name="p_url-licence"/>
-            <xsl:with-param name="p_url-self"/>
+            <xsl:with-param name="p_url-self">
+                <xsl:choose>
+                    <xsl:when test="descendant::tei:ref[@type='url'][@target]">
+                        <xsl:value-of select="descendant::tei:ref[@type='url']/@target"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:with-param>
 <!--            <xsl:with-param name="p_url-self" select="concat('https://rawgit.com/tillgrallert/digital-muqtabas/master/xml/', tokenize(base-uri(), '/')[last()], '#', @xml:id)"/>-->
         </xsl:call-template>
     </xsl:template>
