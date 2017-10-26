@@ -317,19 +317,21 @@
                 </xsl:if>
             
             <titleInfo>
-                <title>
                     <!-- the @xml:lang is still dysfunctional -->
                     <xsl:choose>
                         <xsl:when test="$p_type='a'">
-                            <xsl:attribute name="xml:lang" select="$p_title-article/descendant-or-self::tei:title/@xml:lang"/>
-                            <xsl:apply-templates select="$p_title-article" mode="m_plain-text"/>
+<!--                            <xsl:attribute name="xml:lang" select="$p_title-article/descendant-or-self::tei:title/@xml:lang"/>-->
+                            <xsl:apply-templates select="$p_title-article" mode="m_tei2mods"/>
                         </xsl:when>
                         <xsl:when test="$p_type='m' or $p_type='j'">
-                            <xsl:attribute name="xml:lang" select="$p_title-publication/descendant-or-self::tei:title/@xml:lang"/>
-                            <xsl:apply-templates select="$p_title-publication" mode="m_plain-text"/>
+<!--                            <xsl:attribute name="xml:lang" select="$p_title-publication/descendant-or-self::tei:title/@xml:lang"/>-->
+                            <xsl:apply-templates select="$p_title-publication" mode="m_tei2mods"/>
                         </xsl:when>
+                        <!-- fallback option: monograph -->
+                        <xsl:otherwise>
+                            <xsl:apply-templates select="$p_title-publication" mode="m_tei2mods"/>
+                        </xsl:otherwise>
                     </xsl:choose>
-                </title>
             </titleInfo>
             <!--<mods:titleInfo>
                 <mods:title type="abbreviated">
@@ -406,10 +408,13 @@
                 <xsl:value-of select="$p_url-licence"/>
             </accessCondition>
             <xsl:if test="$p_url-self !=''">
+                <!-- MODS allows for more than one URL! -->
                 <location>
+                    <xsl:for-each select="tokenize($p_url-self,' ')">
                     <url dateLastAccessed="{$p_date-accessed}" usage="primary display">
-                        <xsl:value-of select="$p_url-self"/>
+                        <xsl:value-of select="."/>
                     </url>
+                    </xsl:for-each>
                 </location>
             </xsl:if>
             <xsl:apply-templates select="$p_lang-source" mode="m_tei2mods"/>
@@ -497,6 +502,22 @@
                 <xsl:value-of select="."/>
             </languageTerm>
         </language>
+    </xsl:template>
+    
+    <!-- titles -->
+    <xsl:template match="tei:title" mode="m_tei2mods">
+        <xsl:choose>
+            <xsl:when test="@type='sub'">
+                <subTitle lang="{@xml:lang}">
+                    <xsl:apply-templates select="." mode="m_plain-text"/>
+                </subTitle>
+            </xsl:when>
+            <xsl:otherwise>
+                <title lang="{@xml:lang}">
+                    <xsl:apply-templates select="." mode="m_plain-text"/>
+                </title>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
 
