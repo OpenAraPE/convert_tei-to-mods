@@ -30,6 +30,10 @@
                 <xsl:when test="descendant::tei:title/@level = 's'">
                     <xsl:text>m</xsl:text>
                 </xsl:when>
+                <!-- fallback option -->
+                <!--<xsl:otherwise>
+                    <xsl:text>m</xsl:text>
+                </xsl:otherwise>-->
             </xsl:choose>
         </xsl:variable>
         <xsl:call-template name="t_bibl-mods">
@@ -46,15 +50,20 @@
                         <xsl:copy-of select="descendant::tei:title[@level = 'm']"/>
                     </xsl:when>
                     <xsl:when test="$v_type = 'j' or $v_type = 'a'">
-                        <!-- conceive a way to deal with titles in multiple languages -->
+                        <!--<!-\- conceive a way to deal with titles in multiple languages -\->
                         <tei:title xml:lang="{descendant::tei:title[@level = 'j'][not(@type='sub')]/@xml:lang}" level="{$v_type}">
                             <xsl:value-of select="descendant::tei:title[@level = 'j'][not(@type='sub')]"/>
                             <xsl:if test="descendant::tei:title[@level = 'j'][@type='sub']">
                                 <xsl:text>: </xsl:text>
                                 <xsl:value-of select="descendant::tei:title[@level = 'j'][@type='sub']"/>
                             </xsl:if>
-                        </tei:title>  
+                        </tei:title>  -->
+                        <xsl:copy-of select="descendant::tei:title[@level = 'j']"/>
                     </xsl:when>
+                    <!-- fallback option -->
+                    <xsl:otherwise>
+                        <xsl:copy-of select="descendant::tei:title"/>
+                    </xsl:otherwise>
                 </xsl:choose>
             </xsl:with-param>
             <xsl:with-param name="p_publisher" select="descendant::tei:publisher"/>
@@ -108,6 +117,7 @@
             <!-- empty params that are node sets need to be set -->
             <xsl:with-param name="p_idno" select="descendant::tei:idno"/>
             <xsl:with-param name="p_url-licence"/>
+            <!-- $p_url accepts more then one URL separated by whitespace -->
             <xsl:with-param name="p_url-self">
                 <xsl:choose>
                     <xsl:when test="descendant::tei:ref[@type='url'][@target]">
@@ -125,6 +135,8 @@
             <modsCollection xsi:schemaLocation="http://www.loc.gov/mods/v3 {$vgSchemaLocation}">
                 <!--<xsl:apply-templates select=".//tei:body//tei:bibl[contains(ancestor::tei:div/tei:head/text(),$pg_head-section)]"/>-->
                 <xsl:apply-templates select=".//tei:body//tei:bibl[descendant::tei:title] | .//tei:body//tei:biblStruct"/>
+                <!-- apply to the works listed in the particDesc -->
+                <xsl:apply-templates select=".//tei:particDesc//tei:bibl[descendant::tei:title]"/>
             </modsCollection>
         </xsl:result-document>
     </xsl:template>
