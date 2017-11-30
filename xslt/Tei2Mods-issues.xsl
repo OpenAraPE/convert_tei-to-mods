@@ -10,11 +10,6 @@
     
     <xsl:include href="Tei2Mods-functions.xsl"/>
 
-
-<!--    <xsl:variable name="vFileId" select="tei:TEI/@xml:id"/>
-    <xsl:variable name="vgFileUrl"
-        select="concat('https://rawgit.com/tillgrallert/digital-muqtabas/master/xml/', tokenize(base-uri(), '/')[last()])"/>-->
-
     <xsl:template match="/">
         <xsl:result-document href="../metadata/issues/{$vgFileId}.MODS.xml">
             <modsCollection xsi:schemaLocation="http://www.loc.gov/mods/v3 {$vgSchemaLocation}">
