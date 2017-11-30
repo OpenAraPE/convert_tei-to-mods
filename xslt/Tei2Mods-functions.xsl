@@ -7,12 +7,11 @@
     xpath-default-namespace="http://www.loc.gov/mods/v3" version="2.0">
     <xsl:output method="xml" encoding="UTF-8" indent="yes" omit-xml-declaration="no" version="1.0"/>
 <!--    <xsl:strip-space elements="*"/>-->
-    <xsl:preserve-space elements="tei:head tei:bibl"/>
+<!--    <xsl:preserve-space elements="tei:head tei:bibl"/>-->
 
 
     <!-- this stylesheet generates a MODS XML file with bibliographic metadata for each <div> in the body of the TEI source file. File names are based on the source's @xml:id and the @xml:id of the <div>. -->
     <!-- to do:
-        + add information on edition: i.e. TEI edition
         + add information on collaborators on the digital edition -->
     <xsl:include href="https://cdn.rawgit.com/tillgrallert/xslt-calendar-conversion/master/date-function.xsl"/>
 
@@ -21,8 +20,8 @@
     <xsl:param name="pLang" select="'ar'"/>
 
     <xsl:variable name="vgFileId" select="tei:TEI/@xml:id"/>
-    <xsl:variable name="vgFileUrl"
-        select="concat('https://rawgit.com/tillgrallert/digital-muqtabas/master/xml/', tokenize(base-uri(), '/')[last()])"/>
+    <!-- this needs to be adopted to work with any periodical and not just al-Muqtabas -->
+<!--    <xsl:variable name="vgFileUrl" select="concat('https://rawgit.com/tillgrallert/digital-muqtabas/master/xml/', tokenize(base-uri(), '/')[last()])"/>-->
     <xsl:variable name="vgSchemaLocation" select="'http://www.loc.gov/standards/mods/v3/mods-3-6.xsd'"/>
 
 
@@ -40,10 +39,16 @@
             <xsl:with-param name="p_title-article">
                 <tei:title level="a" xml:lang="{tei:head/@xml:lang}">
                     <xsl:if test="@type = 'article' and ancestor::tei:div[@type = 'section']">
-                        <xsl:apply-templates select="ancestor::tei:div[@type = 'section']/tei:head" mode="m_plain-text"/>
+                        <xsl:variable name="v_plain">
+                            <xsl:apply-templates select="ancestor::tei:div[@type = 'section']/tei:head" mode="m_plain-text"/>
+                        </xsl:variable>
+                        <xsl:value-of select="normalize-space($v_plain)"/>
                         <xsl:text>: </xsl:text>
                     </xsl:if>
-                    <xsl:apply-templates select="tei:head" mode="m_plain-text"/>
+                    <xsl:variable name="v_plain">
+                        <xsl:apply-templates select="tei:head" mode="m_plain-text"/>
+                    </xsl:variable>
+                    <xsl:value-of select="normalize-space($v_plain)"/>
                 </tei:title>
             </xsl:with-param>
             <xsl:with-param name="p_xml-id" select="@xml:id"/>
@@ -191,7 +196,10 @@
             <originInfo>
                 <!-- information on the edition: it would be weird to mix data of the original source and the digital edition -->
                 <edition xml:lang="en">
-                    <xsl:apply-templates select="$p_edition" mode="m_plain-text"/>
+                    <xsl:variable name="v_plain">
+                        <xsl:apply-templates select="$p_edition" mode="m_plain-text"/>
+                    </xsl:variable>
+                    <xsl:value-of select="normalize-space($v_plain)"/>
                 </edition>
                 <xsl:apply-templates select="$p_place-publication" mode="m_tei2mods"/>
                 <!--<place>
@@ -388,7 +396,10 @@
             <relatedItem type="host">
                 <titleInfo>
                     <title xml:lang="{$p_lang}">
-                        <xsl:apply-templates select="$p_title-publication" mode="m_plain-text"/>
+                        <xsl:variable name="v_plain">
+                            <xsl:apply-templates select="$p_title-publication" mode="m_plain-text"/>
+                        </xsl:variable>
+                        <xsl:value-of select="normalize-space($v_plain)"/>
                     </title>
                 </titleInfo>
                 <genre authority="marcgt">journal</genre>
@@ -423,16 +434,19 @@
 
     <!-- plain text output: beware that heavily marked up nodes will have most whitespace omitted -->
     <xsl:template match="text()" mode="m_plain-text">
-        <xsl:value-of select="normalize-space(replace(.,'(\w)[\s|\n]+','$1 '))"/>
-<!--        <xsl:text> </xsl:text>-->
-<!--        <xsl:value-of select="normalize-space(.)"/>-->
-        <!--<xsl:text> </xsl:text>-->
+<!--        <xsl:value-of select="normalize-space(replace(.,'(\w)[\s|\n]+','$1 '))"/>-->
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="normalize-space(.)"/>
+        <xsl:text> </xsl:text>
     </xsl:template>
+    <!-- replace any line, column or page break with a single whitespace -->
     <xsl:template match="tei:lb | tei:cb | tei:pb" mode="m_plain-text">
         <xsl:text> </xsl:text>
     </xsl:template>
-
-    <!-- add whitespace around descendants of tei:head -->
+    <!-- if editors made any interventions, use the text found in the analogue original -->
+    <xsl:template match="tei:choice[tei:orig]" mode="m_plain-text">
+        <xsl:apply-templates select="tei:orig" mode="m_plain-text"/>
+    </xsl:template>
     <!-- prevent notes in div/head from producing output -->
     <xsl:template match="tei:head/tei:note" mode="m_plain-text" priority="100"/>
 
@@ -440,13 +454,19 @@
     <xsl:template match="tei:surname | tei:persName" mode="m_tei2mods">
         <xsl:param name="p_lang"/>
         <namePart type="family" xml:lang="{@xml:lang}">
-            <xsl:apply-templates select="." mode="m_plain-text"/>
+            <xsl:variable name="v_plain">
+                <xsl:apply-templates select="." mode="m_plain-text"/>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($v_plain)"/>
         </namePart>
     </xsl:template>
     <xsl:template match="tei:forename" mode="m_tei2mods">
         <xsl:param name="p_lang"/>
         <namePart type="given" xml:lang="{@xml:lang}">
-            <xsl:apply-templates select="." mode="m_plain-text"/>
+            <xsl:variable name="v_plain">
+                <xsl:apply-templates select="." mode="m_plain-text"/>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($v_plain)"/>
         </namePart>
     </xsl:template>
 <!--    <xsl:template match="tei:persName" mode="m_tei2mods">
@@ -460,7 +480,10 @@
     <xsl:template match="tei:publisher/tei:orgName | tei:publisher/tei:persName" mode="m_tei2mods">
         <!-- tei:publisher can have a variety of child nodes, which are completely ignored by this template -->
             <publisher xml:lang="{@xml:lang}">
-                <xsl:apply-templates select="." mode="m_plain-text"/>
+                <xsl:variable name="v_plain">
+                    <xsl:apply-templates select="." mode="m_plain-text"/>
+                </xsl:variable>
+                <xsl:value-of select="normalize-space($v_plain)"/>
             </publisher>
     </xsl:template>
     
@@ -472,7 +495,10 @@
     
     <xsl:template match="tei:placeName" mode="m_tei2mods">
         <placeTerm type="text" xml:lang="{@xml:lang}">
-            <xsl:apply-templates select="." mode="m_plain-text"/>
+            <xsl:variable name="v_plain">
+                <xsl:apply-templates select="." mode="m_plain-text"/>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($v_plain)"/>
         </placeTerm>
     </xsl:template>
     
@@ -491,7 +517,10 @@
     <!-- IDs -->
     <xsl:template match="tei:idno" mode="m_tei2mods">
         <identifier type="{@type}">
-            <xsl:apply-templates select="." mode="m_plain-text"/>
+            <xsl:variable name="v_plain">
+                <xsl:apply-templates select="." mode="m_plain-text"/>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($v_plain)"/>
         </identifier>
     </xsl:template>
     
@@ -509,12 +538,18 @@
         <xsl:choose>
             <xsl:when test="@type='sub'">
                 <subTitle lang="{@xml:lang}">
-                    <xsl:apply-templates select="." mode="m_plain-text"/>
+                    <xsl:variable name="v_plain">
+                        <xsl:apply-templates select="." mode="m_plain-text"/>
+                    </xsl:variable>
+                    <xsl:value-of select="normalize-space($v_plain)"/>
                 </subTitle>
             </xsl:when>
             <xsl:otherwise>
                 <title lang="{@xml:lang}">
-                    <xsl:apply-templates select="." mode="m_plain-text"/>
+                    <xsl:variable name="v_plain">
+                        <xsl:apply-templates select="." mode="m_plain-text"/>
+                    </xsl:variable>
+                    <xsl:value-of select="normalize-space($v_plain)"/>
                 </title>
             </xsl:otherwise>
         </xsl:choose>
