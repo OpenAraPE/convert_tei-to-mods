@@ -10,7 +10,7 @@
     <!--<xsl:include href="https://rawgit.com/tillgrallert/xslt-calendar-conversion/master/date-function.xsl"/>-->
     
     <!-- this parameter is currently not used -->
-    <xsl:param name="pg_head-section" select="'مخطوطات ومطبوعات'"/>
+<!--    <xsl:param name="pg_head-section" select="'مخطوطات ومطبوعات'"/>-->
     <!--  -->
     <xsl:param name="p_url-boilerplate" select="'../xslt-boilerplate/modsbp_parameters.xsl'"/>
     
