@@ -13,7 +13,8 @@
     <!-- this stylesheet generates a MODS XML file with bibliographic metadata for each <div> in the body of the TEI source file. File names are based on the source's @xml:id and the @xml:id of the <div>. -->
     <!-- to do:
         + add information on collaborators on the digital edition -->
-    <xsl:include href="https://cdn.rawgit.com/tillgrallert/xslt-calendar-conversion/master/date-function.xsl"/>
+<!--    <xsl:include href="https://cdn.rawgit.com/tillgrallert/xslt-calendar-conversion/master/date-function.xsl"/>-->
+    <xsl:include href="../../../xslt-functions/functions_dates.xsl"/>
 
 
     <!-- parameter to actively select the language of some fields (if available): 'ar-Latn-x-ijmes', 'ar', 'en' etc. -->
@@ -162,7 +163,7 @@
         <xsl:param name="p_title-publication"/>
         <!-- $p_publisher expects one or more <tei:publisher> nodes -->
         <xsl:param name="p_publisher"/>
-        <!-- publication dates are formatted as <tei:date when="" calendar="" when-custom=""/> -->
+        <!-- $p_date-publication is a <tei:date> formatted as <tei:date when="" calendar="" when-custom=""/> -->
         <xsl:param name="p_date-publication"/>
         <xsl:param name="p_date-accessed" select="format-date(current-date(),'[Y0001]-[M01]-[D01]')"/>
         <xsl:param name="p_place-publication"/>
@@ -211,8 +212,8 @@
                 <dateIssued>
                     <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@when!=''">
                         <xsl:attribute name="encoding" select="'w3cdtf'"/>
+                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[1]/@when"/>
                     </xsl:if>
-                    <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date/@when"/>
                 </dateIssued>
                 <!-- add hijri dates -->
                 <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@calendar='#cal_islamic'">
@@ -243,6 +244,82 @@
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
                                         <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_islamic']/@when-custom"/>
+                                    </xsl:non-matching-substring>
+                                </xsl:analyze-string>
+                            </xsl:when>
+                        </xsl:choose>
+                        <xsl:text>]</xsl:text>
+                    </dateOther>
+                </xsl:if>
+                <!-- add julian dates -->
+                <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@calendar='#cal_julian'">
+                    <dateOther type="julian">
+                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian']/@when-custom"/>
+                    </dateOther>
+                    <!-- this still needs work -->
+                    <dateOther>
+                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian']/@when-custom"/>
+                        <!-- add regularised Gregorian date -->
+                        <xsl:text> [</xsl:text>
+                        <xsl:choose>
+                            <!-- test if Gregorian date is already available in the source -->
+                            <xsl:when test="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian'][@when-custom]/@when">
+                                <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian'][@when-custom]/@when"/>
+                            </xsl:when>
+                            <!-- generate normalised date -->
+                            <xsl:when test="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian'][@when-custom]">
+                                <xsl:analyze-string select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian'][@when-custom]/@when-custom" regex="(\d{{4}})$|(\d{{4}}-\d{{2}}-\d{{2}})$">
+                                    <xsl:matching-substring>
+                                        <xsl:if test="regex-group(1)">
+                                            <xsl:value-of select="regex-group(1)"/>
+                                        </xsl:if>
+                                        <xsl:if test="regex-group(2)">
+                                            <xsl:call-template name="funcDateJ2G">
+                                                <xsl:with-param name="pDateJ" select="regex-group(2)"/>
+                                            </xsl:call-template>
+                                        </xsl:if>
+                                    </xsl:matching-substring>
+                                    <xsl:non-matching-substring>
+                                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian']/@when-custom"/>
+                                    </xsl:non-matching-substring>
+                                </xsl:analyze-string>
+                            </xsl:when>
+                        </xsl:choose>
+                        <xsl:text>]</xsl:text>
+                    </dateOther>
+                </xsl:if>
+                    <!-- add mali dates -->
+                <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@calendar='#cal_ottomanfiscal'">
+                    <dateOther type="julian">
+                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal']/@when-custom"/>
+                    </dateOther>
+                    <!-- this still needs work -->
+                    <dateOther>
+                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal']/@when-custom"/>
+                        <!-- add regularised Gregorian date -->
+                        <xsl:text> [</xsl:text>
+                        <xsl:choose>
+                            <!-- test if Gregorian date is already available in the source -->
+                            <xsl:when test="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal'][@when-custom]/@when">
+                                <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal'][@when-custom]/@when"/>
+                            </xsl:when>
+                            <!-- generate normalised date -->
+                            <xsl:when test="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal'][@when-custom]">
+                                <xsl:analyze-string select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal'][@when-custom]/@when-custom" regex="(\d{{4}})$|(\d{{4}}-\d{{2}}-\d{{2}})$">
+                                    <xsl:matching-substring>
+                                        <xsl:if test="regex-group(1)">
+                                            <xsl:call-template name="funcDateMY2G">
+                                                <xsl:with-param name="pYearM" select="regex-group(1)"/>
+                                            </xsl:call-template>
+                                        </xsl:if>
+                                        <xsl:if test="regex-group(2)">
+                                            <xsl:call-template name="funcDateM2G">
+                                                <xsl:with-param name="pDateM" select="regex-group(2)"/>
+                                            </xsl:call-template>
+                                        </xsl:if>
+                                    </xsl:matching-substring>
+                                    <xsl:non-matching-substring>
+                                        <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian']/@when-custom"/>
                                     </xsl:non-matching-substring>
                                 </xsl:analyze-string>
                             </xsl:when>
