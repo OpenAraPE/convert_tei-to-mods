@@ -69,7 +69,9 @@
             <xsl:with-param name="p_publisher" select="descendant::tei:publisher"/>
             <xsl:with-param name="p_place-publication" select="descendant::tei:pubPlace"/>
             <!-- this needs to be changed to reflect the changes in the called template -->
-            <xsl:with-param name="p_date-publication" select="descendant::tei:date[1]"/>
+            <xsl:with-param name="p_date-publication">
+                <xsl:copy-of select="descendant::tei:date"/>
+            </xsl:with-param>
             <xsl:with-param name="p_date-accessed" select="ancestor::tei:TEI/tei:teiHeader/tei:revisionDesc/tei:change[1]/@when"/>
             <!-- this needs to be adapted to @from and @to -->
             <xsl:with-param name="p_issue">
@@ -120,6 +122,9 @@
             <!-- $p_url accepts more then one URL separated by whitespace -->
             <xsl:with-param name="p_url-self">
                 <xsl:choose>
+                    <xsl:when test="descendant::tei:idno[@type='url']">
+                        <xsl:value-of select="descendant::tei:idno[@type='url']"/>
+                    </xsl:when>
                     <xsl:when test="descendant::tei:ref[@type='url'][@target]">
                         <xsl:value-of select="descendant::tei:ref[@type='url']/@target"/>
                     </xsl:when>
