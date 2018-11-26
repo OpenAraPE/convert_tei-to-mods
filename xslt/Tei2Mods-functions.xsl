@@ -53,7 +53,8 @@
                 </tei:title>
             </xsl:with-param>
             <xsl:with-param name="p_xml-id" select="@xml:id"/>
-            <xsl:with-param name="p_url-file" select="replace(replace($vFileDesc/tei:publicationStmt/tei:idno[@type='url'],'github.com', 'rawgit.com'),'blob/','')"/>
+            <!-- the URL will need updating -->
+            <xsl:with-param name="p_url-file" select="$vFileDesc/tei:publicationStmt/tei:idno[@type='url']"/>
 <!--            <xsl:with-param name="p_url-self" select="concat($vgFileUrl, '#', @xml:id)"/>-->
             <xsl:with-param name="p_url-licence" select="$vFileDesc/tei:publicationStmt/tei:availability/tei:licence/@target"/>
             <xsl:with-param name="p_issue">
