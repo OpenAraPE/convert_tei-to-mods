@@ -2,6 +2,7 @@
 title: "Licence: convert_tei-to-mods"
 author: Till Grallert
 date: 2016-12-28 10:36:38 +0100
+ORCID: orcid.org/0000-0002-5739-8094
 ---
 
 # MIT License
