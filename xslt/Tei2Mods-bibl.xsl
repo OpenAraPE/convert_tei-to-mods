@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tei="http://www.tei-c.org/ns/1.0"
-    xmlns:mods="http://www.loc.gov/mods/v3" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xpath-default-namespace="http://www.loc.gov/mods/v3" version="2.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+    xmlns:tei="http://www.tei-c.org/ns/1.0"
+    xmlns:mods="http://www.loc.gov/mods/v3" xmlns="http://www.loc.gov/mods/v3" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xpath-default-namespace="http://www.loc.gov/mods/v3" 
+    version="3.0">
     <xsl:output method="xml" encoding="UTF-8" indent="yes" omit-xml-declaration="no" version="1.0"/>
-<!--    <xsl:strip-space elements="*"/>-->
     <xsl:preserve-space elements="tei:head tei:bibl"/>
 
     <xsl:include href="Tei2Mods-functions.xsl"/>
-    <!--<xsl:include href="https://rawgit.com/tillgrallert/xslt-calendar-conversion/master/date-function.xsl"/>-->
     
     <!-- this parameter is currently not used -->
 <!--    <xsl:param name="pg_head-section" select="'مخطوطات ومطبوعات'"/>-->
     <!--  -->
     <xsl:param name="p_url-boilerplate" select="'../xslt-boilerplate/modsbp_parameters.xsl'"/>
     
-    <!-- it doesn't matter one applies the transformation to bibl or biblStruct -->
+    <!-- it doesn't matter if one applies the transformation to bibl or biblStruct -->
     <xsl:template match="tei:bibl | tei:biblStruct">
         <xsl:variable name="v_type">
             <xsl:choose>
