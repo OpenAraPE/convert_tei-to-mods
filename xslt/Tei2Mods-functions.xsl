@@ -399,14 +399,11 @@
                 </xsl:if>
             
             <titleInfo>
-                    <!-- the @xml:lang is still dysfunctional -->
                     <xsl:choose>
                         <xsl:when test="$p_type='a'">
-<!--                            <xsl:attribute name="xml:lang" select="$p_title-article/descendant-or-self::tei:title/@xml:lang"/>-->
                             <xsl:apply-templates select="$p_title-article" mode="m_tei2mods"/>
                         </xsl:when>
                         <xsl:when test="$p_type='m' or $p_type='j'">
-<!--                            <xsl:attribute name="xml:lang" select="$p_title-publication/descendant-or-self::tei:title/@xml:lang"/>-->
                             <xsl:apply-templates select="$p_title-publication" mode="m_tei2mods"/>
                         </xsl:when>
                         <!-- fallback option: monograph -->
