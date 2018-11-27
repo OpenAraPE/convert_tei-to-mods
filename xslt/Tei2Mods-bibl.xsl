@@ -51,14 +51,6 @@
                         <xsl:copy-of select="descendant::tei:title[@level = 'm']"/>
                     </xsl:when>
                     <xsl:when test="$v_type = 'j' or $v_type = 'a'">
-                        <!--<!-\- conceive a way to deal with titles in multiple languages -\->
-                        <tei:title xml:lang="{descendant::tei:title[@level = 'j'][not(@type='sub')]/@xml:lang}" level="{$v_type}">
-                            <xsl:value-of select="descendant::tei:title[@level = 'j'][not(@type='sub')]"/>
-                            <xsl:if test="descendant::tei:title[@level = 'j'][@type='sub']">
-                                <xsl:text>: </xsl:text>
-                                <xsl:value-of select="descendant::tei:title[@level = 'j'][@type='sub']"/>
-                            </xsl:if>
-                        </tei:title>  -->
                         <xsl:copy-of select="descendant::tei:title[@level = 'j']"/>
                     </xsl:when>
                     <!-- fallback option -->
@@ -74,7 +66,6 @@
                 <xsl:copy-of select="descendant::tei:date"/>
             </xsl:with-param>
             <xsl:with-param name="p_date-accessed" select="ancestor::tei:TEI/tei:teiHeader/tei:revisionDesc/tei:change[1]/@when"/>
-            <!-- this needs to be adapted to @from and @to -->
             <xsl:with-param name="p_issue">
                 <xsl:choose>
                     <!-- check for correct encoding of issue information -->
@@ -113,10 +104,7 @@
                     </xsl:when>
                 </xsl:choose>
             </xsl:with-param>
-           <!-- <xsl:with-param name="p_volume" select="descendant::tei:biblScope[@unit = 'volume']/@n"/>
-            <xsl:with-param name="p_issue" select="descendant::tei:biblScope[@unit = 'issue']/@n"/>-->
             <xsl:with-param name="p_pages" select="descendant::tei:biblScope[@unit = 'page']"/>
-
             <!-- empty params that are node sets need to be set -->
             <xsl:with-param name="p_idno" select="descendant::tei:idno"/>
             <xsl:with-param name="p_url-licence"/>
@@ -138,7 +126,7 @@
     <xsl:template match="/">
         <xsl:result-document href="../metadata/{$vgFileId}-bibl.MODS.xml">
             <xsl:value-of select="concat('&lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;',$p_url-boilerplate,'&quot;?&gt;')" disable-output-escaping="yes"/>
-            <modsCollection xsi:schemaLocation="http://www.loc.gov/mods/v3 {$v_schema}">
+            <modsCollection xsi:schemaLocation="{$v_schema}">
                 <!--<xsl:apply-templates select=".//tei:body//tei:bibl[contains(ancestor::tei:div/tei:head/text(),$pg_head-section)]"/>-->
                 <xsl:apply-templates select=".//tei:body//tei:bibl[descendant::tei:title] | .//tei:body//tei:biblStruct"/>
                 <!-- apply to the works listed in the particDesc -->
