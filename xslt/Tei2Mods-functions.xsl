@@ -4,6 +4,7 @@
     xmlns:mods="http://www.loc.gov/mods/v3" 
     xmlns="http://www.loc.gov/mods/v3"  
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:oape="https://openarabicpe.github.io/ns"
     xpath-default-namespace="http://www.loc.gov/mods/v3" version="2.0">
     <xsl:output method="xml" encoding="UTF-8" indent="yes" omit-xml-declaration="no" version="1.0"/>
 <!--    <xsl:strip-space elements="*"/>-->
@@ -13,29 +14,27 @@
     <!-- this stylesheet generates a MODS XML file with bibliographic metadata for each <div> in the body of the TEI source file. File names are based on the source's @xml:id and the @xml:id of the <div>. -->
     <!-- to do:
         + add information on collaborators on the digital edition -->
-<!--    <xsl:include href="https://cdn.rawgit.com/tillgrallert/xslt-calendar-conversion/master/date-function.xsl"/>-->
-    <xsl:include href="../../../xslt-functions/functions_dates.xsl"/>
+    <xsl:include href="https://tillgrallert.github.io/xslt-calendar-conversion/functions/date-functions.xsl"/>
 
 
     <!-- parameter to actively select the language of some fields (if available): 'ar-Latn-x-ijmes', 'ar', 'en' etc. -->
-    <xsl:param name="pLang" select="'ar'"/>
+    <xsl:param name="p_lang" select="'ar'"/>
 
     <xsl:variable name="vgFileId" select="tei:TEI/@xml:id"/>
     <!-- this needs to be adopted to work with any periodical and not just al-Muqtabas -->
-<!--    <xsl:variable name="vgFileUrl" select="concat('https://rawgit.com/tillgrallert/digital-muqtabas/master/xml/', tokenize(base-uri(), '/')[last()])"/>-->
-    <xsl:variable name="vgSchemaLocation" select="'http://www.loc.gov/standards/mods/v3/mods-3-6.xsd'"/>
+    <xsl:variable name="v_schema" select="'http://www.loc.gov/standards/mods/mods-3-7.xsd'"/>
 
 
-    <xsl:template name="templDiv2Mods">
-        <xsl:param name="pInput"/>
-        <xsl:variable name="vLang" select="$pLang"/>
+    <xsl:template name="t_div-to-mods">
+        <xsl:param name="p_input"/>
+        <xsl:variable name="v_lang" select="$p_lang"/>
         <!-- variables identifying the digital surrogate -->
-        <xsl:variable name="vFileDesc" select="ancestor::tei:TEI/tei:teiHeader/tei:fileDesc"/>
+        <xsl:variable name="v_fileDesc" select="ancestor::tei:TEI/tei:teiHeader/tei:fileDesc"/>
         <!-- variables identifying the original source -->
-        <xsl:variable name="vBiblStructSource" select="$vFileDesc/tei:sourceDesc/tei:biblStruct"/>
+        <xsl:variable name="v_source-biblStruct" select="$v_fileDesc/tei:sourceDesc/tei:biblStruct"/>
         <xsl:call-template name="t_bibl-mods">
-            <xsl:with-param name="p_lang" select="$pLang"/>
-            <xsl:with-param name="p_title-publication" select="$vBiblStructSource/tei:monogr/tei:title[@level = 'j'][@xml:lang = $vLang][not(@type = 'sub')]"/>
+            <xsl:with-param name="p_lang" select="$p_lang"/>
+            <xsl:with-param name="p_title-publication" select="$v_source-biblStruct/tei:monogr/tei:title[@level = 'j'][@xml:lang = $v_lang][not(@type = 'sub')]"/>
             <!-- $p_title-article expects a <tei:title> node -->
             <xsl:with-param name="p_title-article">
                 <tei:title level="a" xml:lang="{tei:head/@xml:lang}">
@@ -54,49 +53,49 @@
             </xsl:with-param>
             <xsl:with-param name="p_xml-id" select="@xml:id"/>
             <!-- the URL will need updating -->
-            <xsl:with-param name="p_url-file" select="$vFileDesc/tei:publicationStmt/tei:idno[@type='url']"/>
+            <xsl:with-param name="p_url-file" select="$v_fileDesc/tei:publicationStmt/tei:idno[@type='url']"/>
 <!--            <xsl:with-param name="p_url-self" select="concat($vgFileUrl, '#', @xml:id)"/>-->
-            <xsl:with-param name="p_url-licence" select="$vFileDesc/tei:publicationStmt/tei:availability/tei:licence/@target"/>
+            <xsl:with-param name="p_url-licence" select="$v_fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target"/>
             <xsl:with-param name="p_issue">
                 <xsl:choose>
                     <!-- check for correct encoding of issue information -->
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from = $vBiblStructSource//tei:biblScope[@unit = 'issue']/@to">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from"/>
+                    <xsl:when test="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@from = $v_source-biblStruct//tei:biblScope[@unit = 'issue']/@to">
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@from"/>
                     </xsl:when>
                     <!-- check for ranges -->
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from != $vBiblStructSource//tei:biblScope[@unit = 'issue']/@to">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@from"/>
+                    <xsl:when test="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@from != $v_source-biblStruct//tei:biblScope[@unit = 'issue']/@to">
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@from"/>
                         <!-- probably an en-dash is the better option here -->
                         <xsl:text>/</xsl:text>
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@to"/>
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@to"/>
                     </xsl:when>
                     <!-- fallback: erroneous encoding of issue information with @n -->
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'issue']/@n"/>
+                    <xsl:when test="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@n">
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'issue']/@n"/>
                     </xsl:when>
                 </xsl:choose>
             </xsl:with-param>
             <xsl:with-param name="p_volume">
                 <xsl:choose>
                     <!-- check for correct encoding of volume information -->
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from = $vBiblStructSource//tei:biblScope[@unit = 'volume']/@to">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from"/>
+                    <xsl:when test="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@from = $v_source-biblStruct//tei:biblScope[@unit = 'volume']/@to">
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@from"/>
                     </xsl:when>
                     <!-- check for ranges -->
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from != $vBiblStructSource//tei:biblScope[@unit = 'volume']/@to">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@from"/>
+                    <xsl:when test="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@from != $v_source-biblStruct//tei:biblScope[@unit = 'volume']/@to">
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@from"/>
                         <!-- probably an en-dash is the better option here -->
                         <xsl:text>/</xsl:text>
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@to"/>
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@to"/>
                     </xsl:when>
                     <!-- fallback: erroneous encoding of volume information with @n -->
-                    <xsl:when test="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n">
-                        <xsl:value-of select="$vBiblStructSource//tei:biblScope[@unit = 'volume']/@n"/>
+                    <xsl:when test="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@n">
+                        <xsl:value-of select="$v_source-biblStruct//tei:biblScope[@unit = 'volume']/@n"/>
                     </xsl:when>
                 </xsl:choose>
             </xsl:with-param>
             <xsl:with-param name="p_date-publication">
-                <xsl:variable name="v_date" select="$vBiblStructSource/tei:monogr/tei:imprint/tei:date[1]"/>
+                <xsl:variable name="v_date" select="$v_source-biblStruct/tei:monogr/tei:imprint/tei:date[1]"/>
                     <xsl:choose>
                         <xsl:when test="$v_date/@when or $v_date/@when-custom">
                             <xsl:copy-of select="$v_date"/>
@@ -116,17 +115,17 @@
             <!-- provide tei:publisher with a single child in the target language -->
             <xsl:with-param name="p_publisher">
                 <tei:publisher>
-                    <xsl:copy-of select="$vBiblStructSource/tei:monogr/tei:imprint/tei:publisher/tei:orgName[@xml:lang = $vLang]"/>
+                    <xsl:copy-of select="$v_source-biblStruct/tei:monogr/tei:imprint/tei:publisher/tei:orgName[@xml:lang = $v_lang]"/>
                 </tei:publisher>
             </xsl:with-param>
             <!-- provide tei:pubPlace with a single child in the target language -->
             <xsl:with-param name="p_place-publication">
                 <tei:pubPlace>
-                    <xsl:copy-of select="$vBiblStructSource/tei:monogr/tei:imprint/tei:pubPlace/tei:placeName[@xml:lang = $vLang]"/>
+                    <xsl:copy-of select="$v_source-biblStruct/tei:monogr/tei:imprint/tei:pubPlace/tei:placeName[@xml:lang = $v_lang]"/>
                 </tei:pubPlace>
             </xsl:with-param>
             <xsl:with-param name="p_author" select="tei:byline/descendant::tei:persName"/>
-            <xsl:with-param name="p_editor" select="$vBiblStructSource/tei:monogr/tei:editor[tei:persName]"/>
+            <xsl:with-param name="p_editor" select="$v_source-biblStruct/tei:monogr/tei:editor[tei:persName]"/>
             <xsl:with-param name="p_pages">
                 <tei:biblScope unit="pages">
                     <xsl:attribute name="from" select="preceding::tei:pb[@ed = 'print'][1]/@n"/>
@@ -142,12 +141,15 @@
                     </xsl:attribute>
                 </tei:biblScope>
             </xsl:with-param>
-            <xsl:with-param name="p_idno" select="$vBiblStructSource/tei:idno"/>
+            <xsl:with-param name="p_idno" select="$v_source-biblStruct/tei:idno"/>
         </xsl:call-template>
     </xsl:template>
 
     <!-- prevent output from sections of articles and divisions of legal texts -->
-    <xsl:template match="tei:div[ancestor::tei:div[@type = 'article']] | tei:div[ancestor::tei:div[@type = 'bill']] | tei:div[not(@type)]"/>
+    <xsl:template match="tei:div[ancestor::tei:div[@type = 'article']] | 
+        tei:div[ancestor::tei:div[@type = 'item']] |
+        tei:div[ancestor::tei:div[@type = 'bill']] |
+        tei:div[not(@type)]"/>
 
     <!-- the MODS output -->
     <xsl:template name="t_bibl-mods">
@@ -218,12 +220,14 @@
                 </dateIssued>
                 <!-- add hijri dates -->
                 <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@calendar='#cal_islamic'">
-                    <dateOther type="hijri">
+                    <!-- v3.7 added @calendar (xs:string) -->
+                    <dateOther calendar="islamic">
                         <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_islamic']/@when-custom"/>
                     </dateOther>
                     <!-- this still needs work -->
                     <dateOther>
                         <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_islamic']/@when-custom"/>
+                        <!-- provide Gregorian dates in brackets behind the Islamic date -->
                         <xsl:text> [</xsl:text>
                         <xsl:choose>
                             <xsl:when test="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_islamic'][@when-custom]/@when">
@@ -233,14 +237,10 @@
                                 <xsl:analyze-string select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_islamic'][@when-custom]/@when-custom" regex="(\d{{4}})$|(\d{{4}}-\d{{2}}-\d{{2}})$">
                                     <xsl:matching-substring>
                                         <xsl:if test="regex-group(1)">
-                                            <xsl:call-template name="funcDateHY2G">
-                                                <xsl:with-param name="pYearH" select="regex-group(1)"/>
-                                            </xsl:call-template>
+                                             <xsl:value-of select="oape:date-convert-islamic-year-to-gregorian(regex-group(1))"/>
                                         </xsl:if>
                                         <xsl:if test="regex-group(2)">
-                                            <xsl:call-template name="funcDateH2G">
-                                                <xsl:with-param name="pDateH" select="regex-group(2)"/>
-                                            </xsl:call-template>
+                                            <xsl:value-of select="oape:date-convert-islamic-to-gregorian(regex-group(2))"/>
                                         </xsl:if>
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
@@ -254,7 +254,8 @@
                 </xsl:if>
                 <!-- add julian dates -->
                 <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@calendar='#cal_julian'">
-                    <dateOther type="julian">
+                    <!-- v3.7 added @calendar (xs:string) -->
+                    <dateOther calendar="julian">
                         <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_julian']/@when-custom"/>
                     </dateOther>
                     <!-- this still needs work -->
@@ -275,9 +276,7 @@
                                             <xsl:value-of select="regex-group(1)"/>
                                         </xsl:if>
                                         <xsl:if test="regex-group(2)">
-                                            <xsl:call-template name="funcDateJ2G">
-                                                <xsl:with-param name="pDateJ" select="regex-group(2)"/>
-                                            </xsl:call-template>
+                                            <xsl:value-of select="oape:date-convert-julian-to-gregorian(regex-group(2))"/>
                                         </xsl:if>
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
@@ -291,7 +290,8 @@
                 </xsl:if>
                     <!-- add mali dates -->
                 <xsl:if test="$p_date-publication/descendant-or-self::tei:date/@calendar='#cal_ottomanfiscal'">
-                    <dateOther type="julian">
+                    <!-- v3.7 added @calendar (xs:string) -->
+                    <dateOther calendar="ottoman-fiscal">
                         <xsl:value-of select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal']/@when-custom"/>
                     </dateOther>
                     <!-- this still needs work -->
@@ -309,14 +309,10 @@
                                 <xsl:analyze-string select="$p_date-publication/descendant-or-self::tei:date[@calendar = '#cal_ottomanfiscal'][@when-custom]/@when-custom" regex="(\d{{4}})$|(\d{{4}}-\d{{2}}-\d{{2}})$">
                                     <xsl:matching-substring>
                                         <xsl:if test="regex-group(1)">
-                                            <xsl:call-template name="funcDateMY2G">
-                                                <xsl:with-param name="pYearM" select="regex-group(1)"/>
-                                            </xsl:call-template>
+                                            <xsl:value-of select="oape:date-convert-ottoman-fiscal-year-to-gregorian(regex-group(1))"/>
                                         </xsl:if>
                                         <xsl:if test="regex-group(2)">
-                                            <xsl:call-template name="funcDateM2G">
-                                                <xsl:with-param name="pDateM" select="regex-group(2)"/>
-                                            </xsl:call-template>
+                                            <xsl:value-of select="oape:date-convert-ottoman-fiscal-to-gregorian(regex-group(2))"/>
                                         </xsl:if>
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
@@ -623,7 +619,7 @@
                 </subTitle>
             </xsl:when>
             <xsl:otherwise>
-                <title lang="{@xml:lang}">
+                <title xml:lang="{@xml:lang}">
                     <xsl:variable name="v_plain">
                         <xsl:apply-templates select="." mode="m_plain-text"/>
                     </xsl:variable>
