@@ -14,8 +14,17 @@ OpenArabicPE maintains a number of [XSLT stylesheets to automatically generate M
 1. `Tei2Mods-articles.xsl`: generates one MODS file for each article and section of a periodical issue.
 2. `Tei2Mods-issues.xsl`: generates one MODS file per periodical issue, comprising entries for every article and section.
 
+# MODS as intermediary format
+
 MODS also serves as the intermediary format for the free [bibutils suite](https://sourceforge.net/projects/bibutils/) of conversions between bibliographic metadata formats (including BibTeX) which is under constant development and released under a GNU/GPL (General Public License). `Tei2Mods-issues.xsl` and `bibutils` provide a means to automatically generate a large number of bibliographic formats to suit the reference manager one is working with; e.g.: 
 
 - to generate EndNote (refer-format) one only needs the following terminal command: `$ xml2end MODS.xml > output_file.end`
 - to generate BibTex: `$ xml2bib MODS.xml > output_file.bib`
+
+# Compatibility with Zotero
+
+Zotero has solid support for MODS import and export. However, there are a number of caveats one should be aware of:
+
+1. Zotero has a limited number of "Item Types" and does not currently support periodical issues or volumes. Bibliographic data of `<genre authority="local">journal</genre><genre authority="marcgt">journal</genre>` is mapped to "Journal Article" and the journal title will end up as article title with the journal title empty.
+2. Zotero does not support multi-language MODS. If information is present in more than one language, i.e. `<title xml:lang="ar">الجنان</title><title xml:lang="ar-Latn-x-ijmes">al-Jinān</title>`, Zotero will always pick the first entry.
 
