@@ -23,9 +23,9 @@
         tei:div[@type = 'bill']">
         <xsl:result-document href="../metadata/{concat($vgFileId,'-',@xml:id)}.MODS.xml">
             <xsl:element name="modsCollection">
-                <xsl:attribute name="xsi:schemaLocation" select="concat('http://www.loc.gov/mods/v3 ',$vgSchemaLocation)"/>
+                <xsl:attribute name="xsi:schemaLocation" select="concat('http://www.loc.gov/mods/v3 ',$v_schema)"/>
                 <xsl:call-template name="templDiv2Mods">
-                    <xsl:with-param name="pInput" select="."/>
+                    <xsl:with-param name="p_input" select="."/>
                 </xsl:call-template>
             </xsl:element>
         </xsl:result-document>
