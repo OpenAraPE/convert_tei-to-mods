@@ -240,7 +240,7 @@
                                              <xsl:value-of select="oape:date-convert-islamic-year-to-gregorian(regex-group(1))"/>
                                         </xsl:if>
                                         <xsl:if test="regex-group(2)">
-                                            <xsl:value-of select="oape:date-convert-islamic-to-gregorian(regex-group(2))"/>
+                                            <xsl:value-of select="oape:date-convert-calendars(regex-group(2), '#cal_islamic', '#cal_gregorian')"/>
                                         </xsl:if>
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
@@ -276,7 +276,7 @@
                                             <xsl:value-of select="regex-group(1)"/>
                                         </xsl:if>
                                         <xsl:if test="regex-group(2)">
-                                            <xsl:value-of select="oape:date-convert-julian-to-gregorian(regex-group(2))"/>
+                                            <xsl:value-of select="oape:date-convert-calendars(regex-group(2), '#cal_julian', '#cal_gregorian')"/>
                                         </xsl:if>
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
@@ -312,7 +312,7 @@
                                             <xsl:value-of select="oape:date-convert-ottoman-fiscal-year-to-gregorian(regex-group(1))"/>
                                         </xsl:if>
                                         <xsl:if test="regex-group(2)">
-                                            <xsl:value-of select="oape:date-convert-ottoman-fiscal-to-gregorian(regex-group(2))"/>
+                                            <xsl:value-of select="oape:date-convert-calendars(regex-group(2), '#cal_ottomanfiscal', '#cal_gregorian')"/>
                                         </xsl:if>
                                     </xsl:matching-substring>
                                     <xsl:non-matching-substring>
