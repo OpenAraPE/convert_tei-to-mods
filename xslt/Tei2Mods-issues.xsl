@@ -27,7 +27,7 @@
         tei:div[@type = 'article'][not(ancestor::tei:div[@type = 'bill'])] | 
         tei:div[@type = 'item'][not(ancestor::tei:div[@type = 'bill'])] | 
         tei:div[@type = 'bill']">
-        <xsl:call-template name="templDiv2Mods">
+        <xsl:call-template name="t_div-to-mods">
             <xsl:with-param name="p_input" select="."/>
         </xsl:call-template>
     </xsl:template>
