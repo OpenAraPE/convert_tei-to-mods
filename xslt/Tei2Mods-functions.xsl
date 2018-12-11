@@ -31,7 +31,7 @@
         <!-- variables identifying the digital surrogate -->
         <xsl:variable name="v_fileDesc" select="ancestor::tei:TEI/tei:teiHeader/tei:fileDesc"/>
         <!-- variables identifying the original source -->
-        <xsl:variable name="v_source-biblStruct" select="$v_fileDesc/tei:sourceDesc/tei:biblStruct"/>
+        <xsl:variable name="v_source-biblStruct" select="$v_fileDesc/tei:sourceDesc/tei:biblStruct[1]"/>
         <xsl:call-template name="t_bibl-mods">
             <xsl:with-param name="p_lang" select="$p_lang"/>
             <xsl:with-param name="p_title-publication" select="$v_source-biblStruct/tei:monogr/tei:title[@level = 'j'][@xml:lang = $v_lang][not(@type = 'sub')]"/>
