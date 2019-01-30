@@ -5,7 +5,9 @@
     xmlns="http://www.loc.gov/mods/v3"  
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:oape="https://openarabicpe.github.io/ns"
-    xpath-default-namespace="http://www.loc.gov/mods/v3" version="2.0">
+    xpath-default-namespace="http://www.loc.gov/mods/v3"
+    exclude-result-prefixes="#all"
+    version="3.0">
     <xsl:output method="xml" encoding="UTF-8" indent="yes" omit-xml-declaration="no" version="1.0"/>
 <!--    <xsl:strip-space elements="*"/>-->
 <!--    <xsl:preserve-space elements="tei:head tei:bibl"/>-->
@@ -20,7 +22,7 @@
     <!-- parameter to actively select the language of some fields (if available): 'ar-Latn-x-ijmes', 'ar', 'en' etc. -->
     <xsl:param name="p_lang" select="'ar'"/>
 
-    <xsl:variable name="vgFileId" select="tei:TEI/@xml:id"/>
+    <xsl:variable name="vgFileId" select="substring-before(tokenize(base-uri(),'/')[last()],'.TEIP5')"/>
     <!-- this needs to be adopted to work with any periodical and not just al-Muqtabas -->
     <xsl:variable name="v_schema" select="'http://www.loc.gov/standards/mods/mods-3-7.xsd'"/>
 
@@ -574,12 +576,18 @@
     </xsl:template>
     
     <xsl:template match="tei:persName | tei:orgName | tei:editor | tei:author" mode="m_authority">
-            <xsl:if test="@ref!=''''">
+            <xsl:if test="@ref!=''">
                 <xsl:choose>
+                    <!-- note that MODS seemingly supports only one authority file -->
                     <xsl:when test="matches(@ref, 'viaf:\d+')">
                         <xsl:attribute name="authority" select="'viaf'"/>
                         <!-- it is arguably better to directly dereference VIAF IDs -->
-                        <xsl:attribute name="valueURI" select="replace(@ref,'(viaf):(\d+)','https://viaf.org/viaf/$2')"/>
+                        <xsl:attribute name="valueURI" select="replace(@ref,'.*viaf:(\d+).*','https://viaf.org/viaf/$1')"/>
+                    </xsl:when>
+                    <xsl:when test="matches(@ref, 'oape:pers:\d+')">
+                        <xsl:attribute name="authority" select="'oape'"/>
+                        <!-- OpenArabicPE IDs do not resolve -->
+                        <xsl:attribute name="valueURI" select="replace(@ref,'.*(oape:pers:\d+).*','$1')"/>
                     </xsl:when>
                 </xsl:choose>
             </xsl:if>

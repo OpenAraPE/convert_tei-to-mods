@@ -4,6 +4,7 @@
     xmlns:mods="http://www.loc.gov/mods/v3" xmlns="http://www.loc.gov/mods/v3" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xpath-default-namespace="http://www.loc.gov/mods/v3" 
+    exclude-result-prefixes="#all"
     version="3.0">
     <xsl:output method="xml" encoding="UTF-8" indent="yes" omit-xml-declaration="no" version="1.0"/>
     <xsl:preserve-space elements="tei:head tei:bibl"/>
