@@ -126,7 +126,20 @@
                     <xsl:copy-of select="$v_source-biblStruct/tei:monogr/tei:imprint/tei:pubPlace/tei:placeName[@xml:lang = $v_lang]"/>
                 </tei:pubPlace>
             </xsl:with-param>
-            <xsl:with-param name="p_author" select="tei:byline/descendant::tei:persName"/>
+            <!--<xsl:with-param name="p_author" select="tei:byline/descendant::tei:persName"/>-->
+            <xsl:with-param name="p_author">
+                <xsl:choose>
+                        <xsl:when test="tei:byline/descendant::tei:persName">
+                            <xsl:copy-of select="tei:byline/descendant::tei:persName"/>
+                        </xsl:when>
+                        <xsl:when test="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author">
+                            <xsl:copy-of select="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author/tei:persName"/>
+                        </xsl:when>
+                        <xsl:when test="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']">
+                            <xsl:copy-of select="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']"/>
+                        </xsl:when>
+                    </xsl:choose>
+            </xsl:with-param>
             <xsl:with-param name="p_editor" select="$v_source-biblStruct/tei:monogr/tei:editor[tei:persName]"/>
             <xsl:with-param name="p_pages">
                 <tei:biblScope unit="pages">
