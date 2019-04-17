@@ -18,7 +18,9 @@
     <xsl:template
         match="tei:div[@type = 'section'][not(ancestor::tei:div[@type = ('article', 'bill','item')])] |
         tei:div[@type = ('article', 'item')][not(ancestor::tei:div[@type = 'bill'])] | 
-        tei:div[@type = 'bill']">
+         tei:div[@type = ('article', 'item')][not(ancestor::tei:div[@type = 'item'][@subtype='bill'])] | 
+        tei:div[@type = 'bill'] | 
+        tei:div[@type = 'item'][@subtype='bill']">
         <xsl:result-document href="../metadata/{concat($vgFileId,'-',@xml:id)}.MODS.xml">
             <xsl:element name="modsCollection">
                 <xsl:attribute name="xsi:schemaLocation" select="$v_schema"/>
