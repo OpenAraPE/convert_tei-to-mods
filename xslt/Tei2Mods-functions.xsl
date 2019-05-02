@@ -133,7 +133,7 @@
                             <xsl:copy-of select="tei:byline/descendant::tei:persName"/>
                         </xsl:when>
                         <xsl:when test="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author">
-                            <xsl:copy-of select="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author/tei:persName"/>
+                            <xsl:copy-of select="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author/descendant::tei:persName"/>
                         </xsl:when>
                         <xsl:when test="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']">
                             <xsl:copy-of select="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']"/>
