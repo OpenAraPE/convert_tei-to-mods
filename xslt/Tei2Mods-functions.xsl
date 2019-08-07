@@ -381,7 +381,15 @@
             <xsl:if test="$p_editor/descendant-or-self::tei:persName">
                 <xsl:for-each select="$p_editor/descendant-or-self::tei:persName[@xml:lang = $p_lang]">
                     <name type="personal" xml:lang="{$p_lang}">
-                        <xsl:apply-templates select="ancestor::tei:editor" mode="m_authority"/>
+                        <!-- check if the <tei:editor> or its children contain references to authority files -->
+                        <xsl:choose>
+                            <xsl:when test="matches(ancestor::tei:editor/@ref, 'viaf:\d+')">
+                                <xsl:apply-templates select="ancestor::tei:editor" mode="m_authority"/>
+                            </xsl:when>
+                            <xsl:when test="matches(@ref, 'viaf:\d+')">
+                                <xsl:apply-templates select="." mode="m_authority"/>
+                            </xsl:when>
+                        </xsl:choose>
                         <xsl:choose>
                             <xsl:when test="tei:surname">
                                 <xsl:apply-templates select="tei:surname" mode="m_tei2mods">
