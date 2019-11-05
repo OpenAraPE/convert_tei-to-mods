@@ -17,8 +17,10 @@
             <!-- prevent output for sections of legal texts -->
             <xsl:when
                 test="ancestor::tei:div[@type = 'bill'] or ancestor::tei:div[@subtype = 'bill']"/>
+            <!-- prevent output for mastheads -->
+            <xsl:when test="@type='masthead' or @subtype='masthead'"/>
             <!-- prevent output for sections of articles -->
-            <xsl:when test="parent::tei:div[@type='item']"/>
+            <xsl:when test="ancestor::tei:div[@type='item']"/>
             <xsl:when test="@type = ('section', 'item')">
                 <xsl:result-document href="../metadata/{concat($vgFileId,'-',@xml:id)}.MODS.xml">
                     <xsl:element name="modsCollection">
