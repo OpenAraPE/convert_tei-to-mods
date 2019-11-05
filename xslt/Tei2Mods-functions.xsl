@@ -40,9 +40,9 @@
             <!-- $p_title-article expects a <tei:title> node -->
             <xsl:with-param name="p_title-article">
                 <tei:title level="a" xml:lang="{tei:head/@xml:lang}">
-                    <xsl:if test="@type = 'article' and ancestor::tei:div[@type = 'section']">
+                    <xsl:if test="@type = 'item' and parent::tei:div[@type = 'section']">
                         <xsl:variable name="v_plain">
-                            <xsl:apply-templates select="ancestor::tei:div[@type = 'section']/tei:head" mode="m_plain-text"/>
+                            <xsl:apply-templates select="parent::tei:div[@type = 'section']/tei:head" mode="m_plain-text"/>
                         </xsl:variable>
                         <xsl:value-of select="normalize-space($v_plain)"/>
                         <xsl:text>: </xsl:text>
