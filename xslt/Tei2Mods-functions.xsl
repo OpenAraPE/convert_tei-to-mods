@@ -16,7 +16,8 @@
     <!-- this stylesheet generates a MODS XML file with bibliographic metadata for each <div> in the body of the TEI source file. File names are based on the source's @xml:id and the @xml:id of the <div>. -->
     <!-- to do:
         + add information on collaborators on the digital edition -->
-    <xsl:include href="https://tillgrallert.github.io/xslt-calendar-conversion/functions/date-functions.xsl"/>
+<!--    <xsl:include href="https://tillgrallert.github.io/xslt-calendar-conversion/functions/date-functions.xsl"/>-->
+    <xsl:include href="../../../xslt-calendar-conversion/date-functions.xsl"/>
 
 
     <!-- parameter to actively select the language of some fields (if available): 'ar-Latn-x-ijmes', 'ar', 'en' etc. -->
@@ -55,7 +56,17 @@
             </xsl:with-param>
             <xsl:with-param name="p_xml-id" select="@xml:id"/>
             <!-- the URL will need updating -->
-            <xsl:with-param name="p_url-file" select="$v_fileDesc/tei:publicationStmt/tei:idno[@type='url']"/>
+            <xsl:with-param name="p_url-file">
+                <!-- https://github.com/tillgrallert/digital-muqtabas/blob/master/xml/oclc_ -->
+                <xsl:analyze-string select="$v_fileDesc/tei:publicationStmt/tei:idno[@type='url'][1]" regex="https*://github\.com/(\w+)/(.+?)/blob/master/(.+\.xml)">
+                    <xsl:matching-substring>
+                        <xsl:value-of select="concat('https://',regex-group(1),'.github.io/',regex-group(2),'/',regex-group(3))"/>
+                    </xsl:matching-substring>
+                    <xsl:non-matching-substring>
+                        <xsl:value-of select="."/>
+                    </xsl:non-matching-substring>
+                </xsl:analyze-string>
+            </xsl:with-param>
 <!--            <xsl:with-param name="p_url-self" select="concat($vgFileUrl, '#', @xml:id)"/>-->
             <xsl:with-param name="p_url-licence" select="$v_fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target"/>
             <xsl:with-param name="p_issue">
@@ -156,7 +167,7 @@
                     </xsl:attribute>
                 </tei:biblScope>
             </xsl:with-param>
-            <xsl:with-param name="p_idno" select="$v_source-biblStruct/tei:idno"/>
+            <xsl:with-param name="p_idno" select="$v_source-biblStruct/tei:monogr/tei:idno"/>
         </xsl:call-template>
     </xsl:template>
 
