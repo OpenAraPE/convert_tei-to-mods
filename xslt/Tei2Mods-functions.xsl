@@ -138,8 +138,8 @@
                 </tei:pubPlace>
             </xsl:with-param>
             <!--<xsl:with-param name="p_author" select="tei:byline/descendant::tei:persName"/>-->
-            <xsl:with-param name="p_author">
-                <xsl:choose>
+            <xsl:with-param name="p_author" select="oape:get-author-from-div($p_input)"/>
+                <!--<xsl:choose>
                         <xsl:when test="tei:byline/descendant::tei:persName">
                             <xsl:copy-of select="tei:byline/descendant::tei:persName"/>
                         </xsl:when>
@@ -150,7 +150,7 @@
                             <xsl:copy-of select="descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']"/>
                         </xsl:when>
                     </xsl:choose>
-            </xsl:with-param>
+            </xsl:with-param>-->
             <xsl:with-param name="p_editor" select="$v_source-biblStruct/tei:monogr/tei:editor[tei:persName]"/>
             <xsl:with-param name="p_pages">
                 <tei:biblScope unit="pages">
@@ -665,6 +665,24 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-
+    
+    <!-- function to get the author(s) of a div -->
+    <xsl:function name="oape:get-author-from-div">
+        <xsl:param name="p_input"/>
+         <xsl:choose>
+                        <xsl:when test="$p_input/child::tei:byline/descendant::tei:persName[not(ancestor::tei:note)]">
+                            <xsl:copy-of select="$p_input/child::tei:byline/descendant::tei:persName[not(ancestor::tei:note)]"/>
+                        </xsl:when>
+             <xsl:when test="$p_input/child::tei:byline/descendant::tei:orgName[not(ancestor::tei:note)]">
+                            <xsl:copy-of select="$p_input/child::tei:byline/descendant::tei:orgName[not(ancestor::tei:note)]"/>
+                        </xsl:when>
+                        <xsl:when test="$p_input/descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author">
+                            <xsl:copy-of select="$p_input/descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:author/descendant::tei:persName"/>
+                        </xsl:when>
+                        <xsl:when test="$p_input/descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']">
+                            <xsl:copy-of select="$p_input/descendant::tei:note[@type = 'bibliographic']/tei:bibl/tei:title[@level = 'j']"/>
+                        </xsl:when>
+                    </xsl:choose>
+    </xsl:function>
 
 </xsl:stylesheet>
